@@ -28,14 +28,22 @@ trait NonEmpty[T] extends Parser[T]:
 
 class NonEmptyParser(chars: Set[Char])
     extends BasicParser(chars)
-    with NonEmpty[Char]
+    with NonEmpty[Char] //mixin
 
 trait NotTwoConsecutive[T] extends Parser[T]:
-  val todo = ???
-// ???
+  abstract override def parseAll(seq: Seq[T]): Boolean =
+    var consecutive = true
+    var previous: Option[T] = None
+    for (el <- seq)
+      previous match
+        case Some(prev) if el == prev => consecutive = false
+        case _ => ()
+      previous = Some(el)
+    consecutive && super.parseAll(seq)
 
 class NotTwoConsecutiveParser(chars: Set[Char])
-    extends BasicParser(chars) // with ????
+    extends BasicParser(chars)
+    with NotTwoConsecutive[Char]
 
 @main def checkParsers(): Unit =
   def parser = new BasicParser(Set('a', 'b', 'c'))
@@ -64,7 +72,7 @@ class NotTwoConsecutiveParser(chars: Set[Char])
   println(parserNTCNE.parseAll("XYYZ".toList)) // false
   println(parserNTCNE.parseAll("".toList)) // false
 
-  def sparser: Parser[Char] = ??? // "abc".charParser()
+  def sparser: Parser[Char] = new BasicParser(Set('a', 'b', 'c')) // "abc".charParser()
   println(sparser.parseAll("aabc".toList)) // true
   println(sparser.parseAll("aabcdc".toList)) // false
   println(sparser.parseAll("".toList)) // true
