@@ -12,4 +12,30 @@ object Solitaire extends App:
     rows.mkString("\n")
 
 
-  println(render(solution = Seq((0, 0), (2, 1)), width = 3, height = 3))
+  val moves = Seq((1, 0), (-1, 0), (2, 0), (-2, 0), (0, 1), (0, -1), (0, 2), (0, -2), (1, 1), (1, -1), (-1, 1), (-1, -1)) // possible moves
+
+  def placeMarks(width: Int, height: Int): Unit =
+    val start = (width / 2, height / 2)
+
+    def inBounds(x: Int, y: Int): Boolean =
+      x >= 0 && x < width && y >= 0 && y < height
+
+    val total = width * height
+
+    def explore(path: Seq[(Int, Int)], visited: Set[(Int, Int)]): Unit =
+      if path.length == total then
+        println(render(path, width, height) + "\n")
+      else
+        val (x, y) = path.head
+        for (dirx, diry) <- moves
+          nx = x + dirx
+          ny = y + diry
+          next = (nx, ny)
+          if inBounds(nx, ny) && !visited.contains(next) do
+            explore(next +: path, visited + next)
+
+    explore(Seq(start), Set(start))
+
+
+  //println(render(solution = Seq((0, 0), (2, 1)), width = 3, height = 3))
+  placeMarks(3, 3)
